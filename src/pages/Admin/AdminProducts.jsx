@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 import { 
   getAllProducts, 
   createProduct, 
@@ -184,7 +183,6 @@ const AdminProducts = () => {
       <div className="admin-header">
         <h1>Gestión de Productos</h1>
         <div>
-          <Link to="/admin/profile" className="profile-link">Mi Perfil</Link>
           <button onClick={() => { setCurrentProduct(null); setIsFormOpen(true); }}>
             + Crear Producto
           </button>

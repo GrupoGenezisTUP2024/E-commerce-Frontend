@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 import { getAllOrders, updateOrderStatus, createOrder } from '../../../services/orderService';
+import { FiPlus, FiTrash2 } from 'react-icons/fi';
 import './AdminOrders.scss';
 
-// --- Componente del Formulario Modal para Crear Orden ---
+// --- Componente del Formulario Modal para Crear Orden (COMPLETAMENTE REESCRITO) ---
 const CreateOrderModal = ({ onSave, onCancel }) => {
   const [orderData, setOrderData] = useState({
     userId: '',
-    status: 'paid',
+    status: 'paid', // 'paid' como valor por defecto
     totalAmount: '',
     paymentGatewayId: '',
   });
@@ -30,7 +30,9 @@ const CreateOrderModal = ({ onSave, onCancel }) => {
   };
 
   const removeItem = (index) => {
-    setItems(items.filter((_, i) => i !== index));
+    if (items.length > 1) { // Evita eliminar el último item
+      setItems(items.filter((_, i) => i !== index));
+    }
   };
 
   const handleSubmit = (e) => {
@@ -52,10 +54,55 @@ const CreateOrderModal = ({ onSave, onCancel }) => {
     <div className="modal-overlay">
       <div className="modal-content large">
         <h2>Crear Nueva Orden Manual</h2>
-        <form onSubmit={handleSubmit}>
-          {/* ... campos del formulario ... */}
-          <button type="button" onClick={onCancel}>Cancelar</button>
-          <button type="submit">Crear Orden</button>
+        <form onSubmit={handleSubmit} className="order-form">
+          <div className="form-row">
+            <div className="form-group">
+              <label>ID de Usuario (userId)</label>
+              <input type="number" name="userId" value={orderData.userId} onChange={handleOrderChange} required />
+            </div>
+            <div className="form-group">
+              <label>Monto Total (totalAmount)</label>
+              <input type="number" step="0.01" name="totalAmount" value={orderData.totalAmount} onChange={handleOrderChange} required />
+            </div>
+          </div>
+          <div className="form-row">
+            <div className="form-group">
+              <label>Estado (status)</label>
+              <select name="status" value={orderData.status} onChange={handleOrderChange}>
+                <option value="paid">Pagada</option>
+                <option value="pending">Pendiente</option>
+                <option value="shipped">Enviada</option>
+                <option value="delivered">Entregada</option>
+                <option value="cancelled">Cancelada</option>
+              </select>
+            </div>
+            <div className="form-group">
+              <label>ID de Pasarela (paymentGatewayId)</label>
+              <input type="text" name="paymentGatewayId" value={orderData.paymentGatewayId} onChange={handleOrderChange} placeholder="Ej: Transferencia-123" />
+            </div>
+          </div>
+          
+          <hr className="form-divider" />
+          
+          <h4>Ítems de la Orden</h4>
+          {items.map((item, index) => (
+            <div className="item-row" key={index}>
+              <input type="number" name="productId" placeholder="ID Producto" value={item.productId} onChange={(e) => handleItemChange(index, e)} required />
+              <input type="number" name="quantity" placeholder="Cantidad" value={item.quantity} onChange={(e) => handleItemChange(index, e)} required />
+              <input type="number" step="0.01" name="priceAtPurchase" placeholder="Precio de Compra" value={item.priceAtPurchase} onChange={(e) => handleItemChange(index, e)} required />
+              <button type="button" className="remove-item-btn" onClick={() => removeItem(index)} disabled={items.length <= 1}>
+                <FiTrash2 />
+              </button>
+            </div>
+          ))}
+          <button type="button" className="add-item-btn" onClick={addItem}>
+            <FiPlus /> Añadir Ítem
+          </button>
+          
+          <div className="form-actions">
+            <button type="button" className="cancel-btn" onClick={onCancel}>Cancelar</button>
+            <button type="submit" className="submit-btn">Crear Orden</button>
+          </div>
         </form>
       </div>
     </div>
@@ -75,7 +122,7 @@ const AdminOrders = () => {
       try {
         setLoading(true);
         const ordersData = await getAllOrders();
-        setOrders(ordersData);
+        setOrders(ordersData || []);
       } catch (err) {
         setError('No se pudieron cargar las órdenes.');
       } finally {
@@ -95,13 +142,15 @@ const AdminOrders = () => {
   };
   
   const handleCreateOrder = async (orderData) => {
-      try {
-          const newOrder = await createOrder(orderData);
-          setOrders(prev => [newOrder, ...prev]); // Añade la nueva orden al principio
-          setIsModalOpen(false);
-      } catch (err) {
-          setError(err.message || 'Error al crear la orden.');
-      }
+    try {
+      const newOrder = await createOrder(orderData);
+      // Asumiendo que la API no devuelve la orden creada, volvemos a cargar todas
+      const updatedOrders = await getAllOrders();
+      setOrders(updatedOrders || []);
+      setIsModalOpen(false);
+    } catch (err) {
+      setError(err.message || 'Error al crear la orden.');
+    }
   };
 
   if (loading) return <p>Cargando órdenes...</p>;
