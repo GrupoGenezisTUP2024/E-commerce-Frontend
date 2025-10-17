@@ -27,15 +27,23 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const login = async (credentials) => {
-    // Esta función está esperando exactamente la respuesta que tu API ahora provee
     const data = await loginUser(credentials);
     
-    // Esta validación ahora será exitosa
     if (data.user && data.token) {
+      // --- CAPA DE TRADUCCIÓN / NORMALIZACIÓN ---
+      // Creamos un nuevo objeto de usuario con la convención camelCase que usaremos en toda la app.
+      const normalizedUser = {
+        id: data.user.id,
+        firstName: data.user.firstname, // Convertimos firstname -> firstName
+        lastName: data.user.lastname,   // Convertimos lastname -> lastName
+        email: data.user.email,
+        role: data.user.role
+      };
+
       localStorage.setItem('token', data.token);
-      localStorage.setItem('user', JSON.stringify(data.user)); // Guardamos el objeto 'user' completo
+      localStorage.setItem('user', JSON.stringify(normalizedUser)); // Guardamos el objeto normalizado
       setToken(data.token);
-      setUser(data.user); // Establecemos el objeto 'user' en el estado
+      setUser(normalizedUser); // Establecemos el objeto normalizado en el estado
     } else {
       throw new Error('Respuesta de login inválida desde el servidor.');
     }
@@ -52,9 +60,15 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('user');
   };
 
+  const updateUserState = (updatedUserData) => {
+    // Asumimos que updatedUserData ya vendrá en camelCase desde el servicio
+    setUser(updatedUserData);
+    localStorage.setItem('user', JSON.stringify(updatedUserData));
+  };
+
   const isAuthenticated = !!token;
 
-  const value = { user, token, isAuthenticated, loading, login, register, logout };
+  const value = { user, token, isAuthenticated, loading, login, register, logout, updateUserState };
 
   return (
     <AuthContext.Provider value={value}>
@@ -63,7 +77,6 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
-// eslint-disable-next-line react-refresh/only-export-components
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {
