@@ -30,20 +30,14 @@ export const AuthProvider = ({ children }) => {
     const data = await loginUser(credentials);
     
     if (data.user && data.token) {
-      // --- CAPA DE TRADUCCIÓN / NORMALIZACIÓN ---
-      // Creamos un nuevo objeto de usuario con la convención camelCase que usaremos en toda la app.
-      const normalizedUser = {
-        id: data.user.id,
-        firstName: data.user.firstname, // Convertimos firstname -> firstName
-        lastName: data.user.lastname,   // Convertimos lastname -> lastName
-        email: data.user.email,
-        role: data.user.role
-      };
-
+      // --- CORRECCIÓN CLAVE AQUÍ ---
+      // Eliminamos la capa de normalización. Usamos el objeto 'data.user' directamente
+      // ya que el backend ahora nos lo entrega en el formato camelCase correcto.
+      
       localStorage.setItem('token', data.token);
-      localStorage.setItem('user', JSON.stringify(normalizedUser)); // Guardamos el objeto normalizado
+      localStorage.setItem('user', JSON.stringify(data.user)); // Guardamos el objeto user tal como viene
       setToken(data.token);
-      setUser(normalizedUser); // Establecemos el objeto normalizado en el estado
+      setUser(data.user); // Establecemos el objeto user tal como viene
     } else {
       throw new Error('Respuesta de login inválida desde el servidor.');
     }
@@ -61,7 +55,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   const updateUserState = (updatedUserData) => {
-    // Asumimos que updatedUserData ya vendrá en camelCase desde el servicio
+    // Aquí también asumimos que la respuesta de actualización vendrá en camelCase
     setUser(updatedUserData);
     localStorage.setItem('user', JSON.stringify(updatedUserData));
   };

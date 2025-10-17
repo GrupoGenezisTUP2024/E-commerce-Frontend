@@ -29,13 +29,14 @@ const Navbar = () => {
 
             {isAuthenticated && user?.role === 'admin' && (
               <Link to="/admin/products" className="navbar__link">Admin</Link>
+              
             )}
           </nav>
           
           <div className="navbar__actions">
             {isAuthenticated ? (
               <div className="navbar__user-menu">
-                {/* --- CORRECCIÓN APLICADA AQUÍ --- */}
+                {/* --- ASEGÚRATE DE QUE ESTA LÍNEA USE 'firstName' --- */}
                 <span className="navbar__username">Hola, {user?.firstName}</span>
                 <button onClick={logout} className="navbar__logout-btn">
                   <FiLogOut title="Cerrar Sesión" />

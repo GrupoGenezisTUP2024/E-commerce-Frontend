@@ -184,11 +184,12 @@ form .form-actions {
   justify-content: flex-end;
   gap: 1rem;
   button {
-    padding: 0.75rem 1.5rem;
+    padding: 0.75rem 1.5rem; // <-- igual para ambos botones
     border-radius: 4px;
     font-weight: 600;
     cursor: pointer;
     border: none;
+    // Estilos para ambos botones, diferenciando solo por tipo
     &[type="submit"] { 
       background-color: $primary-color; 
       color: $light-text;
