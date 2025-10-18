@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../../context/AuthContext';
-import { updateUserProfile, changeUserPassword } from '../../services/userService';
+import { useAuth } from '../../../context/AuthContext';
+import { updateUserProfile, changeUserPassword } from '../../../services/userService';
 import './AdminProfile.scss';
 
 const AdminProfile = () => {

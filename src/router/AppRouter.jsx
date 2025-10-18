@@ -2,7 +2,7 @@ import React from 'react';
 import { Routes, Route, Navigate, Outlet } from 'react-router-dom';
 
 // --- LAYOUTS ---
-import AdminLayout from '../pages/Admin/AdminLayout/AdminLayout'; 
+import AdminLayout from '../pages/Dashboard/AdminLayout/AdminLayout';
 
 // --- COMPONENTES DE LAYOUT PÚBLICO ---
 // No los importamos como un layout separado, sino los componentes que lo forman
@@ -22,10 +22,10 @@ import PaymentSuccess from '../pages/PaymentStatus/PaymentSuccess';
 import PaymentFailure from '../pages/PaymentStatus/PaymentFailure';
 
 // --- PÁGINAS DE ADMINISTRACIÓN ---
-// Asumo que ya renombraste AdminOrders.jsx a ManageOrders.jsx
-import ManageOrders from '../pages/Admin/AdminOrders/ManageOrders'; 
-import AdminProducts from '../pages/Admin/AdminProducts';
-import AdminProfile from '../pages/Admin/AdminProfile';
+// Las páginas del área de administración se movieron a pages/Dashboard
+import ManageOrders from '../pages/Dashboard/AdminOrders/ManageOrders';
+import AdminProducts from '../pages/Dashboard/AdminProducts/AdminProducts';
+import AdminProfile from '../pages/Dashboard/AdminProfile/AdminProfile';
 
 // --- COMPONENTES DE RUTAS ---
 import ProtectedRoute from './ProtectedRoute';

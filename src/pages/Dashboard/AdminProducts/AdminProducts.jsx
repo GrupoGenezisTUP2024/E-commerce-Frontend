@@ -4,8 +4,8 @@ import {
   createProduct, 
   updateProduct, 
   deleteProduct, 
-} from '../../services/productService';
-import { getAllCategories } from '../../services/categoryService';
+} from '../../../services/productService';
+import { getAllCategories } from '../../../services/categoryService';
 import { FiUploadCloud } from 'react-icons/fi';
 import './AdminProducts.scss';
 
