@@ -13,12 +13,14 @@ const AdminLayout = () => {
     navigate('/'); // Redirigir al home después del logout
   };
 
+  const displayName = user ? (user.firstName || user.firstname || user.name || user.email || '') : '';
+
   return (
     <div className="admin-layout">
       <aside className="admin-sidebar">
         <div className="sidebar-header">
           <h3 className="sidebar-title">Admin Panel</h3>
-          <p className="sidebar-welcome">Bienvenido, {user?.firstname}</p>
+          <p className="sidebar-welcome">Bienvenido{displayName ? `, ${displayName}` : ','}</p>
         </div>
         <nav className="sidebar-nav">
           <NavLink to="/admin/orders" className="nav-link">
