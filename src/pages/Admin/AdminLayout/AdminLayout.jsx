@@ -1,34 +1,53 @@
 import React from 'react';
-import { NavLink, Outlet } from 'react-router-dom';
+import { NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { FiGrid, FiList, FiUsers, FiUser, FiLogOut } from 'react-icons/fi';
 import { useAuth } from '../../../context/AuthContext';
 import './AdminLayout.scss';
 
-// Componente interno para el header del panel de admin
-const AdminHeader = () => {
-  return (
-    <header className="admin-layout-header">
-      <div className="header-content">
-        <h1 className="header-title">Panel de Administración</h1>
-        <nav className="header-nav">
-          <NavLink to="/admin/products" end>Productos</NavLink>
-          <NavLink to="/admin/orders">Órdenes</NavLink>
-          <NavLink to="/admin/profile">Mi Perfil</NavLink>
-        </nav>
-      </div>
-    </header>
-  );
-};
-
-// Layout principal que envuelve las páginas de admin
 const AdminLayout = () => {
-  const { user } = useAuth();
-  
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/'); // Redirigir al home después del logout
+  };
+
   return (
     <div className="admin-layout">
-      <AdminHeader />
-      <div className="admin-content">
-        <Outlet /> {/* Aquí se renderizarán las páginas (AdminProducts, AdminOrders, etc.) */}
-      </div>
+      <aside className="admin-sidebar">
+        <div className="sidebar-header">
+          <h3 className="sidebar-title">Admin Panel</h3>
+          <p className="sidebar-welcome">Bienvenido, {user?.firstname}</p>
+        </div>
+        <nav className="sidebar-nav">
+          <NavLink to="/admin/orders" className="nav-link">
+            <FiList />
+            <span>Órdenes</span>
+          </NavLink>
+          <NavLink to="/admin/products" className="nav-link">
+            <FiGrid />
+            <span>Productos</span>
+          </NavLink>
+          <NavLink to="/admin/users" className="nav-link">
+            <FiUsers />
+            <span>Usuarios</span>
+          </NavLink>
+          <NavLink to="/admin/profile" className="nav-link">
+            <FiUser />
+            <span>Mi Perfil</span>
+          </NavLink>
+        </nav>
+        <div className="sidebar-footer">
+          <button onClick={handleLogout} className="logout-button">
+            <FiLogOut />
+            <span>Cerrar Sesión</span>
+          </button>
+        </div>
+      </aside>
+      <main className="admin-content-area">
+        <Outlet />
+      </main>
     </div>
   );
 };
