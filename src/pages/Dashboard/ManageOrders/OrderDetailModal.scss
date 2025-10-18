@@ -1,0 +1,89 @@
+@use '../../../styles/variables' as *;
+@use 'sass:color';
+
+.modal-overlay {
+  position: fixed; inset: 0; background-color: rgba(0, 0, 0, 0.7);
+  display: flex; justify-content: center; align-items: center;
+  z-index: 1000; padding: 1rem;
+}
+
+.modal-content {
+  background-color: $dark-card-bg; border-radius: 8px;
+  width: 100%; max-height: 90vh;
+  display: flex; flex-direction: column;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  &.large { max-width: 800px; }
+}
+
+.modal-header {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 1rem 2rem; border-bottom: 1px solid color.adjust($dark-bg, $lightness: 10%);
+  flex-shrink: 0;
+  h2 { font-size: 1.5rem; }
+  .close-btn { background: none; border: none; font-size: 1.5rem; color: $secondary-text; cursor: pointer; &:hover { color: $light-text; } }
+}
+
+.modal-body {
+  padding: 0;
+  overflow-y: auto;
+  p { padding: 2rem; text-align: center; }
+}
+
+.invoice-container {
+  padding: 2.5rem; background-color: white; color: #1e293b; font-family: sans-serif;
+}
+
+.invoice-header {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  margin-bottom: 1.5rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 1rem;
+  h1 { font-size: 2.2rem; color: #0f172a; margin: 0; }
+  .invoice-date { color: #64748b; margin-top: 0.25rem; }
+  .download-btn {
+    background-color: $primary-color; color: $light-text; border: none; padding: 0.6rem 1.2rem;
+    border-radius: 6px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 0.5rem;
+    &:hover { background-color: color.adjust($primary-color, $lightness: -10%); }
+  }
+}
+
+.customer-details, .payment-details {
+  margin-bottom: 1.5rem; line-height: 1.6;
+  p { margin: 0.25rem 0; padding: 0; text-align: left; }
+}
+
+.items-title {
+  font-size: 1.4rem; font-weight: 600; margin-top: 2.5rem; margin-bottom: 1rem;
+  padding-bottom: 0.5rem; border-bottom: 1px solid #e2e8f0;
+}
+
+.items-table {
+  width: 100%; border-collapse: collapse; margin-bottom: 2rem;
+  th, td { padding: 0.8rem; text-align: left; border-bottom: 1px solid #e2e8f0; }
+  thead { background-color: #f8fafc; th { font-weight: 600; color: #475569; text-transform: uppercase; font-size: 0.8rem; } }
+  tbody tr:last-child td { border-bottom: none; }
+  tfoot {
+    border-top: 2px solid #1e293b;
+    font-size: 1.1rem; font-weight: 700;
+    .total-label { text-align: right; }
+    .total-amount { color: $primary-color; }
+  }
+}
+
+// --- 3. MODIFICAR ESTILOS DEL FOOTER DE LA FACTURA ---
+.invoice-footer {
+  margin-top: 2.5rem; padding-top: 1.5rem;
+  border-top: 2px solid #e2e8f0;
+  display: flex; // Habilitar Flexbox
+  justify-content: space-between; // Alinear elementos a los extremos
+  align-items: center; // Alinear verticalmente
+  
+  p {
+    color: #64748b; font-size: 0.9rem;
+    padding: 0; // Quitar padding extra
+    text-align: left; // Alinear a la izquierda
+  }
+
+  .invoice-logo {
+    max-width: 120px; // Ajusta el tamaño del logo según necesites
+    height: auto;
+  }
+}

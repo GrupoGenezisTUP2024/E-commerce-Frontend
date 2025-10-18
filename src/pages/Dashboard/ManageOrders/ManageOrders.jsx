@@ -1,12 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { getAllOrders, updateOrderStatus } from '../../../services/orderService'; // Asegúrate de que la ruta sea correcta
+// 1. Importar getOrderById para obtener los detalles de una orden
+import { getAllOrders, getOrderById, updateOrderStatus } from '../../../services/orderService';
+// 2. Importar el nuevo componente Modal (que crearemos en el siguiente paso)
+import OrderDetailModal from './OrderDetailModal';
 import './ManageOrders.scss';
 
 const ManageOrders = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [updatingStatus, setUpdatingStatus] = useState(null); // ID de la orden que se está actualizando
+  const [updatingStatus, setUpdatingStatus] = useState(null);
+
+  // 3. NUEVOS ESTADOS para manejar la lógica del modal
+  const [selectedOrderDetails, setSelectedOrderDetails] = useState(null); // Almacenará los datos de la orden seleccionada
+  const [isModalLoading, setIsModalLoading] = useState(false); // Para mostrar un loader si la carga de detalles es lenta
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -14,7 +21,6 @@ const ManageOrders = () => {
         setLoading(true);
         setError('');
         const data = await getAllOrders();
-        // Ordenamos las órdenes por ID descendente para mostrar las más nuevas primero
         const sortedData = data.sort((a, b) => b.id - a.id);
         setOrders(sortedData || []);
       } catch (err) {
@@ -27,21 +33,38 @@ const ManageOrders = () => {
     fetchOrders();
   }, []);
 
-  const handleStatusChange = async (orderId, newStatus) => {
-    setUpdatingStatus(orderId); // Activa el loader/deshabilitado para esta fila
+  // 4. NUEVA FUNCIÓN para abrir el modal y buscar los detalles de la orden
+  const handleViewDetails = async (orderId) => {
+    // Si ya hay un modal abierto, no hacer nada
+    if (selectedOrderDetails) return;
+
+    setIsModalLoading(true);
+    // Establecemos un objeto temporal para abrir el modal inmediatamente con un loader
+    setSelectedOrderDetails({ id: orderId, items: [] }); 
     try {
-      // Llamamos al servicio para actualizar el estado en el backend
+      // Llamamos al servicio para obtener los detalles completos, incluyendo los 'items'
+      const detailedOrder = await getOrderById(orderId);
+      setSelectedOrderDetails(detailedOrder);
+    } catch (err) {
+      console.error("Error al cargar detalle de la orden:", err);
+      setError('No se pudo cargar el detalle de la orden.');
+      setSelectedOrderDetails(null); // Cierra el modal si hay un error
+    } finally {
+      setIsModalLoading(false);
+    }
+  };
+
+  const handleStatusChange = async (orderId, newStatus) => {
+    setUpdatingStatus(orderId);
+    try {
       const updatedOrder = await updateOrderStatus(orderId, newStatus);
-      
-      // Actualizamos el estado local con la respuesta consistente del backend
       setOrders(prevOrders => 
         prevOrders.map(o => (o.id === orderId ? { ...o, status: updatedOrder.status } : o))
       );
     } catch (err) {
       console.error('Error al actualizar el estado:', err);
-      // Opcional: podrías añadir un estado para mostrar un toast/notificación de error
     } finally {
-      setUpdatingStatus(null); // Desactiva el loader/deshabilitado
+      setUpdatingStatus(null);
     }
   };
 
@@ -54,22 +77,26 @@ const ManageOrders = () => {
   const getStatusClass = (status) => {
     if (!status) return 'status--default';
     switch (status.toLowerCase()) {
-      case 'completed':
-      case 'paid':
-        return 'status--paid';
-      case 'pending':
-        return 'status--pending';
-      case 'cancelled':
-        return 'status--cancelled';
-      case 'shipped':
-        return 'status--shipped';
-      default:
-        return 'status--default';
+      case 'completed': case 'paid': return 'status--paid';
+      case 'pending': return 'status--pending';
+      case 'cancelled': return 'status--cancelled';
+      case 'shipped': return 'status--shipped';
+      default: return 'status--default';
     }
   };
 
+
   return (
     <div className="manage-orders-page">
+      {/* 5. Renderizado condicional del Modal */}
+      {selectedOrderDetails && (
+        <OrderDetailModal
+          order={selectedOrderDetails}
+          isLoading={isModalLoading}
+          onClose={() => setSelectedOrderDetails(null)}
+        />
+      )}
+
       <div className="page-header">
         <h1>Gestión de Órdenes</h1>
         <button className="create-btn">+ Crear Orden Manual</button>
@@ -93,15 +120,18 @@ const ManageOrders = () => {
             </thead>
             <tbody>
               {orders.map(order => (
-                <tr key={order.id}>
+                // 6. Añadimos el onClick a la fila para abrir el modal
+                <tr key={order.id} onClick={() => handleViewDetails(order.id)} className="clickable-row">
                   <td className="cell-id">#{order.id}</td>
                   <td className="cell-client">
                     {`${order.firstname || ''} ${order.lastname || ''}`.trim() || 'Usuario no disponible'}
                   </td>
                   <td>
+                    {/* El select ahora detiene la propagación del click para no abrir el modal */}
                     <select 
                       value={order.status} 
                       onChange={(e) => handleStatusChange(order.id, e.target.value)}
+                      onClick={(e) => e.stopPropagation()} // <-- MUY IMPORTANTE
                       className={`status-select ${getStatusClass(order.status)}`}
                       disabled={updatingStatus === order.id}
                     >
